@@ -1,0 +1,22 @@
+{
+  "name": "better-blog",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check": "biome check --write .",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "typecheck": "turbo check-types"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "turbo": "^2.6.3",
+    "@biomejs/biome": "^2.2.0"
+  }
+}
