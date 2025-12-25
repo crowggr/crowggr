@@ -1,71 +1,163 @@
 # better-blog
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Start, Self, ORPC, and more.
+Open source headless blog CMS for modern web developers.
+
+## What is better-blog?
+
+better-blog is a headless blog platform designed for TanStack Start and Next.js developers. Write your content in a beautiful dashboard, fetch it via API or SDK in your app.
+
+**Open source.** Self-host it or use our cloud version at [better.blog](https://better.blog).
 
 ## Features
 
-- **TypeScript** - For type safety and improved developer experience
-- **TanStack Start** - SSR framework with TanStack Router
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **shadcn/ui** - Reusable UI components
-- **oRPC** - End-to-end type-safe APIs with OpenAPI integration
-- **Drizzle** - TypeScript-first ORM
-- **PostgreSQL** - Database engine
-- **Authentication** - Better-Auth
-- **Biome** - Linting and formatting
-- **Turborepo** - Optimized monorepo build system
+- **Headless API** - Fetch your posts from any frontend
+- **MDX Support** - Write with Markdown + React components
+- **Image Uploads** - Drag & drop media library with CDN
+- **Multi-site** - Manage multiple blogs from one dashboard
+- **Team Support** - Invite authors and collaborators
+- **SEO Ready** - Meta tags, OG images, slugs
+- **Self-hostable** - Docker Compose one-liner deploy
 
-## Getting Started
+## Tech Stack
 
-First, install the dependencies:
+- [TanStack Start](https://tanstack.com/start) - Full-stack React framework
+- [Drizzle](https://orm.drizzle.team) - TypeScript ORM
+- [Postgres](https://postgresql.org) - Database
+- [Better Auth](https://better-auth.com) - Authentication
+- [Coss UI](https://coss-ui.com) - UI components
+- [oRPC](https://orpc.unnoq.com) - Type-safe API
+- [Polar](https://polar.sh) - Subscriptions & payments
 
-```bash
-bun install
-```
-## Database Setup
+## Quick Start
 
-This project uses PostgreSQL with Drizzle ORM.
+### Cloud (Recommended)
 
-1. Make sure you have a PostgreSQL database set up.
-2. Update your `apps/web/.env` file with your PostgreSQL connection details.
+Sign up at [better.blog](https://better.blog) and start writing in minutes.
 
-3. Apply the schema to your database:
-```bash
-bun run db:push
-```
-
-
-Then, run the development server:
+### Self-Hosted
 
 ```bash
-bun run dev
+curl -fsSL https://better.blog/install.sh | sh
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see your fullstack application.
+Or with Docker Compose:
 
+```bash
+git clone https://github.com/better-blog/better-blog
+cd better-blog
+cp .env.example .env
+docker compose up -d
+```
 
+## SDK
 
+Install the SDK in your project:
 
+```bash
+bun add @better-blog/client
+# or
+bun add @better-blog/react
+```
 
+### Vanilla Client
 
+```typescript
+import { createClient } from '@better-blog/client';
+
+const blog = createClient({
+  siteId: 'your-site-id',
+  apiKey: 'your-api-key',
+});
+
+// Get all posts
+const posts = await blog.posts.list();
+
+// Get single post
+const post = await blog.posts.get('my-post-slug');
+```
+
+### React Hooks
+
+```typescript
+import { usePosts, usePost } from '@better-blog/react';
+
+function Blog() {
+  const { data: posts, isLoading } = usePosts();
+
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <ul>
+      {posts.map(post => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
+
+function Post({ slug }) {
+  const { data: post } = usePost(slug);
+
+  return (
+    <article>
+      <h1>{post.title}</h1>
+      <div>{post.content}</div>
+    </article>
+  );
+}
+```
+
+### TanStack Start
+
+```typescript
+import { blogLoader } from '@better-blog/tanstack';
+
+export const Route = createFileRoute('/blog/$slug')({
+  loader: blogLoader(({ params }) => ({
+    post: blog.posts.get(params.slug),
+  })),
+  component: Post,
+});
+```
 
 ## Project Structure
 
 ```
 better-blog/
 ├── apps/
-│   └── web/         # Fullstack application (React + TanStack Start)
+│   ├── dashboard/     # Admin UI
+│   ├── docs/          # Documentation
+│   └── website/       # Landing page
 ├── packages/
-│   ├── api/         # API layer / business logic
-│   ├── auth/        # Authentication configuration & logic
-│   └── db/          # Database schema & queries
+│   ├── api/           # oRPC API
+│   ├── db/            # Drizzle schema
+│   ├── client/        # @better-blog/client
+│   ├── react/         # @better-blog/react
+│   ├── tanstack/      # @better-blog/tanstack
+│   └── ui/            # Shared components
+└── docker-compose.yml
 ```
 
-## Available Scripts
+## Development
 
-- `bun run dev`: Start all applications in development mode
-- `bun run build`: Build all applications
-- `bun run check-types`: Check TypeScript types across all apps
-- `bun run db:push`: Push schema changes to database
-- `bun run db:studio`: Open database studio UI
-- `bun run check`: Run Biome formatting and linting
+```bash
+# Install dependencies
+bun install
+
+# Start development
+bun dev
+
+# Run database migrations
+bun db:migrate
+
+# Build all packages
+bun build
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+
+## License
+
+MIT License - see [LICENSE](./LICENSE) for details.
