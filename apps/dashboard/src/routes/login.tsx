@@ -280,7 +280,7 @@ function LoginPage() {
             <div className="relative hidden bg-background md:block">
               <img
                 alt="Image"
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover mix-blend-exclusion"
                 src="/crow-image.png"
               />
               <div className="absolute inset-0 bg-background/50" />

@@ -75,8 +75,9 @@ function OnboardingPage() {
     }
     if (!siteUrl.trim()) {
       newErrors.siteUrl = "Website URL is required";
-    } else if (!/^https?:\/\/.+\..+/.test(siteUrl)) {
-      newErrors.siteUrl = "Please enter a valid URL";
+    } else if (!/^https?:\/\/.+/.test(siteUrl)) {
+      newErrors.siteUrl =
+        "Please enter a valid URL (e.g., https://example.com)";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -135,7 +136,8 @@ function OnboardingPage() {
 
       toast.success("Site created! Redirecting to dashboard...");
       window.location.href = "/";
-    } catch {
+    } catch (error) {
+      console.error("Failed to create site:", error);
       setErrors({ siteUrl: "Failed to create site" });
     } finally {
       setIsLoading(false);

@@ -1,90 +1,89 @@
-# better-blog
+![crowggr](./docs/assets/crowggr-header.jpeg)
 
-Open source headless blog CMS for modern web developers.
+<p align="center">
+	<h1 align="center"><b>Crowggr</b></h1>
+<p align="center">
+    Open-source headless blog CMS you'll actually enjoy. That's it. That's the pitch.
+    <br />
+    <br />
+    <a href="https://docs.crowggr.com">Docs</a>
+    ·
+    <a href="https://x.com/crowggr">X.com</a>
+    ·
+    <a href="https://github.com/crowggr/crowggr/issues">Issues</a>
+  </p>
+</p>
 
-## What is better-blog?
+### Key Features
 
-better-blog is a headless blog platform designed for TanStack Start and Next.js developers. Write your content in a beautiful dashboard, fetch it via API or SDK in your app.
+- Headless API - Fetch posts from any frontend
+- Image Uploads - Drag & drop media library with CDN
+- Multi-site - Manage multiple blogs from one dashboard
+- Team Support - Invite authors and collaborators
+- Built-in billing & subscriptions via Polar.sh
 
-**Open source.** Self-host it or use our cloud version at [better.blog](https://better.blog).
+#### Prerequisites
 
-## Features
+- **Bun** (package manager)
+- **PostgreSQL** database
 
-- **Headless API** - Fetch your posts from any frontend
-- **MDX Support** - Write with Markdown + React components
-- **Image Uploads** - Drag & drop media library with CDN
-- **Multi-site** - Manage multiple blogs from one dashboard
-- **Team Support** - Invite authors and collaborators
-- **SEO Ready** - Meta tags, OG images, slugs
-- **Self-hostable** - Docker Compose one-liner deploy
+### Project Structure
 
-## Tech Stack
+This monorepo is managed with [Turborepo](https://turbo.build/repo) and [Bun workspaces](https://bun.sh/docs/install/workspaces).
 
-- [TanStack Start](https://tanstack.com/start) - Full-stack React framework
-- [Drizzle](https://orm.drizzle.team) - TypeScript ORM
-- [Postgres](https://postgresql.org) - Database
-- [Better Auth](https://better-auth.com) - Authentication
-- [Coss UI](https://coss-ui.com) - UI components
-- [oRPC](https://orpc.unnoq.com) - Type-safe API
-- [Polar](https://polar.sh) - Subscriptions & payments
-
-## Quick Start
-
-### Cloud (Recommended)
-
-Sign up at [better.blog](https://better.blog) and start writing in minutes.
-
-### Self-Hosted
-
-```bash
-curl -fsSL https://better.blog/install.sh | sh
+```
+crowggr/
+├── apps/
+│   ├── dashboard/          # Admin dashboard (TanStack Start)
+│   ├── docs/               # Documentation site
+│   └── web/                # Marketing website
+│
+└── packages/
+    ├── api/                # oRPC API routes
+    ├── auth/               # Better Auth + Polar integration
+    ├── db/                 # Drizzle ORM (PostgreSQL)
+    ├── client/             # @crowggr/client SDK
+    ├── react/              # @crowggr/react hooks
+    └── tanstack/           # @crowggr/tanstack integration
 ```
 
-Or with Docker Compose:
+### Stack
+
+- **Frontend:** TanStack Start, React 19, Tailwind CSS v4
+- **Database:** PostgreSQL with Drizzle ORM
+- **Auth:** Better Auth with GitHub/Google OAuth
+- **Billing:** Polar.sh for subscriptions and payments
+- **UI:** Coss UI components
+- **API:** oRPC for end-to-end type-safe APIs
+- **Monorepo:** Turborepo + Bun workspaces
+
+### Quick Start
+
+**Cloud (Recommended)**
+
+Sign up at [crowggr.com](https://crowggr.com) and start writing in minutes.
+
+**Self-Hosted**
 
 ```bash
-git clone https://github.com/better-blog/better-blog
-cd better-blog
+git clone https://github.com/crowggr/crowggr
+cd crowggr
 cp .env.example .env
-docker compose up -d
+bun install
+bun dev
 ```
 
-## SDK
-
-Install the SDK in your project:
+### SDK
 
 ```bash
-bun add @better-blog/client
-# or
-bun add @better-blog/react
+bun add @crowggr/react
 ```
 
-### Vanilla Client
-
 ```typescript
-import { createClient } from '@better-blog/client';
-
-const blog = createClient({
-  siteId: 'your-site-id',
-  apiKey: 'your-api-key',
-});
-
-// Get all posts
-const posts = await blog.posts.list();
-
-// Get single post
-const post = await blog.posts.get('my-post-slug');
-```
-
-### React Hooks
-
-```typescript
-import { usePosts, usePost } from '@better-blog/react';
+import { usePosts } from '@crowggr/react';
 
 function Blog() {
-  const { data: posts, isLoading } = usePosts();
-
-  if (isLoading) return <div>Loading...</div>;
+  const { data: posts } = usePosts();
 
   return (
     <ul>
@@ -94,70 +93,18 @@ function Blog() {
     </ul>
   );
 }
-
-function Post({ slug }) {
-  const { data: post } = usePost(slug);
-
-  return (
-    <article>
-      <h1>{post.title}</h1>
-      <div>{post.content}</div>
-    </article>
-  );
-}
 ```
 
-### TanStack Start
+### [Docs](https://docs.crowggr.com)
 
-```typescript
-import { blogLoader } from '@better-blog/tanstack';
+- [Quick Start Guide](https://docs.crowggr.com/getting-started) - Get up and running in minutes
+- [SDK Documentation](https://docs.crowggr.com/sdk) - Integrate Crowggr into your app
+- [Self-Hosting](https://docs.crowggr.com/self-hosting) - Deploy on your own infrastructure
 
-export const Route = createFileRoute('/blog/$slug')({
-  loader: blogLoader(({ params }) => ({
-    post: blog.posts.get(params.slug),
-  })),
-  component: Post,
-});
-```
-
-## Project Structure
-
-```
-better-blog/
-├── apps/
-│   ├── dashboard/     # Admin UI
-│   ├── docs/          # Documentation
-│   └── website/       # Landing page
-├── packages/
-│   ├── api/           # oRPC API
-│   ├── db/            # Drizzle schema
-│   ├── client/        # @better-blog/client
-│   ├── react/         # @better-blog/react
-│   ├── tanstack/      # @better-blog/tanstack
-│   └── ui/            # Shared components
-└── docker-compose.yml
-```
-
-## Development
-
-```bash
-# Install dependencies
-bun install
-
-# Start development
-bun dev
-
-# Run database migrations
-bun db:migrate
-
-# Build all packages
-bun build
-```
-
-## Contributing
+### Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
-## License
+### License
 
-MIT License - see [LICENSE](./LICENSE) for details.
+MIT
