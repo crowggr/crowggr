@@ -1,22 +1,46 @@
 {
   "name": "better-blog",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "catalog": {
+      "dotenv": "^17.2.2",
+      "zod": "^4.1.13",
+      "typescript": "^5",
+      "@orpc/server": "^1.12.2",
+      "@orpc/client": "^1.12.2",
+      "@orpc/openapi": "^1.12.2",
+      "@orpc/zod": "^1.12.2",
+      "better-auth": "^1.4.9",
+      "@polar-sh/better-auth": "^1.1.3"
+    }
+  },
   "type": "module",
   "scripts": {
+    "check": "biome check --write .",
     "dev": "turbo dev",
     "build": "turbo build",
-    "check": "biome check --write .",
-    "lint": "biome lint .",
-    "format": "biome format --write .",
-    "typecheck": "turbo check-types"
+    "check-types": "turbo check-types",
+    "dev:native": "turbo -F native dev",
+    "dev:web": "turbo -F web dev",
+    "db:push": "turbo -F @better-blog/db db:push",
+    "db:studio": "turbo -F @better-blog/db db:studio",
+    "db:generate": "turbo -F @better-blog/db db:generate",
+    "db:migrate": "turbo -F @better-blog/db db:migrate"
   },
-  "dependencies": {},
+  "dependencies": {
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
   "devDependencies": {
     "turbo": "^2.6.3",
-    "@biomejs/biome": "^2.2.0"
-  }
+    "@biomejs/biome": "2.3.10",
+    "ultracite": "6.5.0",
+    "typescript": "catalog:",
+    "@types/node": "^22.13.11"
+  },
+  "packageManager": "bun@1.3.2"
 }

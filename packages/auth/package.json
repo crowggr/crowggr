@@ -10,5 +10,16 @@
     }
   },
   "scripts": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@better-blog/config": "workspace:*"
+  },
+  "dependencies": {
+    "better-auth": "catalog:",
+    "@polar-sh/better-auth": "catalog:",
+    "@polar-sh/sdk": "^0.34.16",
+    "dotenv": "catalog:",
+    "zod": "catalog:",
+    "@better-blog/db": "workspace:*"
+  }
 }
