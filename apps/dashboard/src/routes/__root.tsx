@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 import type { orpc } from "@/utils/orpc";
 
 import appCss from "../index.css?url";
@@ -16,6 +17,18 @@ export interface RouterAppContext {
   orpc: typeof orpc;
   queryClient: QueryClient;
 }
+
+const themeScript = `
+  (function() {
+    const stored = localStorage.getItem('crowggr-theme');
+    const theme = stored === 'light' || stored === 'dark'
+      ? stored
+      : (stored === 'system' || !stored)
+        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : 'dark';
+    document.documentElement.classList.add(theme);
+  })();
+`;
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   head: () => ({
@@ -28,7 +41,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "My App",
+        title: "Crowggr",
       },
     ],
     links: [
@@ -44,13 +57,16 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 
 function RootDocument() {
   return (
-    <html className="dark" lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <HeadContent />
       </head>
       <body>
-        <Outlet />
-        <Toaster richColors />
+        <ThemeProvider>
+          <Outlet />
+          <Toaster richColors />
+        </ThemeProvider>
         <TanStackRouterDevtools position="bottom-left" />
         <ReactQueryDevtools buttonPosition="bottom-right" position="bottom" />
         <Scripts />

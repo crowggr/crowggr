@@ -1,9 +1,8 @@
-import type { RouterClient } from "@orpc/server";
-
 import { createContext } from "@better-blog/api/context";
 import { appRouter } from "@better-blog/api/routers/index";
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
+import type { RouterClient } from "@orpc/server";
 import { createRouterClient } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
@@ -29,7 +28,7 @@ const getORPCClient = createIsomorphicFn()
       context: async ({ req }) => {
         return createContext({ req });
       },
-    }),
+    })
   )
   .client((): RouterClient<typeof appRouter> => {
     const link = new RPCLink({
