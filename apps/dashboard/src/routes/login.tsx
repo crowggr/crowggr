@@ -1,7 +1,7 @@
 "use client";
 
 import { Envelope, Lock, User } from "@phosphor-icons/react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -10,22 +10,64 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { getUser } from "@/functions/get-user";
 import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/login")({
+  beforeLoad: async () => {
+    const session = await getUser();
+    if (session) {
+      throw redirect({ to: "/" });
+    }
+  },
   component: LoginPage,
 });
 
+interface FormErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+}
+
 function LoginPage() {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  function validateForm(): boolean {
+    const newErrors: FormErrors = {};
+
+    if (isSignUp && !name.trim()) {
+      newErrors.name = "Name is required";
+    }
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Please enter a valid email";
+    }
+
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -36,21 +78,21 @@ function LoginPage() {
           name,
         });
         if (error) {
-          toast.error(error.message);
+          setErrors({ email: error.message });
           return;
         }
         toast.success("Account created successfully");
-        navigate({ to: "/" });
+        window.location.href = "/onboarding";
       } else {
         const { error } = await authClient.signIn.email({
           email,
           password,
         });
         if (error) {
-          toast.error(error.message);
+          setErrors({ email: error.message });
           return;
         }
-        navigate({ to: "/" });
+        window.location.href = "/";
       }
     } finally {
       setIsLoading(false);
@@ -60,7 +102,7 @@ function LoginPage() {
   async function handleOAuthSignIn(provider: "github" | "google") {
     await authClient.signIn.social({
       provider,
-      callbackURL: "/",
+      callbackURL: "/onboarding",
     });
   }
 
@@ -69,7 +111,7 @@ function LoginPage() {
       <div className="flex w-full max-w-4xl flex-col gap-6">
         <Card className="overflow-hidden p-0">
           <CardContent className="grid p-0 md:grid-cols-2">
-            <form className="p-6 md:p-8" onSubmit={handleSubmit}>
+            <form className="p-6 md:p-8" noValidate onSubmit={handleSubmit}>
               <FieldGroup>
                 <div className="flex flex-col items-center gap-4 text-center">
                   <Logo size={48} />
@@ -90,12 +132,18 @@ function LoginPage() {
                     <Input
                       icon={<User className="size-4" />}
                       id="name"
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        if (errors.name)
+                          setErrors((prev) => ({ ...prev, name: undefined }));
+                      }}
                       placeholder="John Doe"
-                      required
                       type="text"
                       value={name}
                     />
+                    {errors.name && (
+                      <p className="text-destructive text-sm">{errors.name}</p>
+                    )}
                   </Field>
                 )}
                 <Field>
@@ -103,24 +151,41 @@ function LoginPage() {
                   <Input
                     icon={<Envelope className="size-4" />}
                     id="email"
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (errors.email)
+                        setErrors((prev) => ({ ...prev, email: undefined }));
+                    }}
                     placeholder="you@example.com"
-                    required
                     type="email"
                     value={email}
                   />
+                  {errors.email && (
+                    <p className="text-destructive text-sm">{errors.email}</p>
+                  )}
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Input
+                  <PasswordInput
                     icon={<Lock className="size-4" />}
                     id="password"
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (errors.password)
+                        setErrors((prev) => ({ ...prev, password: undefined }));
+                    }}
                     placeholder="Enter your password"
-                    required
-                    type="password"
                     value={password}
                   />
+                  {errors.password ? (
+                    <p className="text-destructive text-sm">
+                      {errors.password}
+                    </p>
+                  ) : isSignUp ? (
+                    <p className="text-muted-foreground text-xs">
+                      Minimum 8 characters
+                    </p>
+                  ) : null}
                 </Field>
                 <Field>
                   <Button className="w-full" disabled={isLoading} type="submit">

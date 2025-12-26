@@ -151,6 +151,7 @@ export const accountRelations = relations(account, ({ one }) => ({
 export const organizationRelations = relations(organization, ({ many }) => ({
   members: many(member),
   invitations: many(invitation),
+  sites: many(site),
 }));
 
 export const memberRelations = relations(member, ({ one }) => ({
@@ -172,5 +173,31 @@ export const invitationRelations = relations(invitation, ({ one }) => ({
   inviter: one(user, {
     fields: [invitation.inviterId],
     references: [user.id],
+  }),
+}));
+
+// Site table for blogs/websites
+export const site = pgTable(
+  "site",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    url: text("url").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [index("site_organizationId_idx").on(table.organizationId)]
+);
+
+export const siteRelations = relations(site, ({ one }) => ({
+  organization: one(organization, {
+    fields: [site.organizationId],
+    references: [organization.id],
   }),
 }));
