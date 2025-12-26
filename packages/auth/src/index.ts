@@ -13,8 +13,13 @@ export const auth = betterAuth({
     provider: "pg",
     schema,
   }),
-  baseURL: process.env.BETTER_AUTH_URL,
-  trustedOrigins: [process.env.CORS_ORIGIN || ""],
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    process.env.CORS_ORIGIN,
+    process.env.BETTER_AUTH_URL,
+  ].filter(Boolean) as string[],
   emailAndPassword: {
     enabled: true,
   },
@@ -35,11 +40,12 @@ export const auth = betterAuth({
       client: polarClient,
       createCustomerOnSignUp: true,
       enableCustomerPortal: true,
+      webhookSecret: process.env.POLAR_WEBHOOK_SECRET,
       use: [
         checkout({
           products: [
             {
-              productId: "your-product-id",
+              productId: process.env.POLAR_PRODUCT_ID as string,
               slug: "pro",
             },
           ],

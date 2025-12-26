@@ -12,6 +12,7 @@ type InputProps = Omit<
   size?: "sm" | "default" | "lg" | number;
   unstyled?: boolean;
   icon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 };
 
 function Input({
@@ -19,6 +20,7 @@ function Input({
   size = "default",
   unstyled = false,
   icon,
+  rightIcon,
   ...props
 }: InputProps) {
   return (
@@ -26,7 +28,7 @@ function Input({
       className={
         cn(
           !unstyled &&
-            "relative inline-flex w-full rounded-lg border border-input bg-background bg-clip-padding text-base shadow-xs ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 has-aria-invalid:border-destructive/36 has-focus-visible:border-ring has-disabled:opacity-64 has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none has-focus-visible:ring-[3px] sm:text-sm dark:bg-input/32 dark:not-in-data-[slot=group]:bg-clip-border dark:has-aria-invalid:ring-destructive/24 dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)]",
+            "relative inline-flex w-full rounded-lg border border-input bg-background bg-clip-padding text-base shadow-xs ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-focus-visible:has-aria-invalid:border-destructive/64 has-focus-visible:has-aria-invalid:ring-destructive/16 has-aria-invalid:border-destructive/36 has-focus-visible:border-ring has-disabled:opacity-64 has-[:disabled,:focus-visible,[aria-invalid]]:shadow-none has-focus-visible:ring-[3px] sm:text-sm dark:bg-card dark:not-in-data-[slot=group]:bg-clip-border dark:has-aria-invalid:ring-destructive/24 dark:not-has-disabled:not-has-focus-visible:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)]",
           className
         ) || undefined
       }
@@ -41,7 +43,9 @@ function Input({
       <InputPrimitive
         className={cn(
           "h-8.5 w-full min-w-0 rounded-[inherit] px-[calc(--spacing(3)-1px)] leading-8.5 outline-none placeholder:text-muted-foreground/72 sm:h-7.5 sm:leading-7.5",
+          "autofill:shadow-[inset_0_0_0px_1000px_var(--color-card)] autofill:[-webkit-text-fill-color:var(--color-foreground)]",
           icon && "pl-10",
+          rightIcon && "pr-10",
           size === "sm" &&
             "h-7.5 px-[calc(--spacing(2.5)-1px)] leading-7.5 sm:h-6.5 sm:leading-6.5",
           size === "lg" && "h-9.5 leading-9.5 sm:h-8.5 sm:leading-8.5",
@@ -54,6 +58,11 @@ function Input({
         size={typeof size === "number" ? size : undefined}
         {...props}
       />
+      {rightIcon && (
+        <span className="absolute inset-y-0 right-0 flex items-center pr-3">
+          {rightIcon}
+        </span>
+      )}
     </span>
   );
 }

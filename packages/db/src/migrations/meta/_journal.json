@@ -8,6 +8,13 @@
       "when": 1766690614083,
       "tag": "0000_bizarre_iron_fist",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766756608858,
+      "tag": "0001_cold_jean_grey",
+      "breakpoints": true
     }
   ]
 }
