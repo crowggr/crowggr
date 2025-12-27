@@ -14,8 +14,10 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as DashboardIndexRouteImport } from './routes/_dashboard/index'
+import { Route as DashboardPostsIndexRouteImport } from './routes/_dashboard/posts/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as DashboardPostsNewRouteImport } from './routes/_dashboard/posts/new'
 
 const SuccessRoute = SuccessRouteImport.update({
   id: '/success',
@@ -41,6 +43,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardPostsIndexRoute = DashboardPostsIndexRouteImport.update({
+  id: '/posts/',
+  path: '/posts/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
   path: '/api/rpc/$',
@@ -51,22 +58,31 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardPostsNewRoute = DashboardPostsNewRouteImport.update({
+  id: '/posts/new',
+  path: '/posts/new',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/success': typeof SuccessRoute
   '/': typeof DashboardIndexRoute
+  '/posts/new': typeof DashboardPostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/posts': typeof DashboardPostsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/success': typeof SuccessRoute
   '/': typeof DashboardIndexRoute
+  '/posts/new': typeof DashboardPostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/posts': typeof DashboardPostsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -75,8 +91,10 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/success': typeof SuccessRoute
   '/_dashboard/': typeof DashboardIndexRoute
+  '/_dashboard/posts/new': typeof DashboardPostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/_dashboard/posts/': typeof DashboardPostsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -85,10 +103,20 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/success'
     | '/'
+    | '/posts/new'
     | '/api/auth/$'
     | '/api/rpc/$'
+    | '/posts'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/onboarding' | '/success' | '/' | '/api/auth/$' | '/api/rpc/$'
+  to:
+    | '/login'
+    | '/onboarding'
+    | '/success'
+    | '/'
+    | '/posts/new'
+    | '/api/auth/$'
+    | '/api/rpc/$'
+    | '/posts'
   id:
     | '__root__'
     | '/_dashboard'
@@ -96,8 +124,10 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/success'
     | '/_dashboard/'
+    | '/_dashboard/posts/new'
     | '/api/auth/$'
     | '/api/rpc/$'
+    | '/_dashboard/posts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -146,6 +176,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_dashboard/posts/': {
+      id: '/_dashboard/posts/'
+      path: '/posts'
+      fullPath: '/posts'
+      preLoaderRoute: typeof DashboardPostsIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/api/rpc/$': {
       id: '/api/rpc/$'
       path: '/api/rpc/$'
@@ -160,15 +197,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_dashboard/posts/new': {
+      id: '/_dashboard/posts/new'
+      path: '/posts/new'
+      fullPath: '/posts/new'
+      preLoaderRoute: typeof DashboardPostsNewRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface DashboardRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardPostsNewRoute: typeof DashboardPostsNewRoute
+  DashboardPostsIndexRoute: typeof DashboardPostsIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardPostsNewRoute: DashboardPostsNewRoute,
+  DashboardPostsIndexRoute: DashboardPostsIndexRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(

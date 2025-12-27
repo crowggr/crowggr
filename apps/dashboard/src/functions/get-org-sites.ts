@@ -1,7 +1,7 @@
 import { db } from "@better-blog/db";
-import { site } from "@better-blog/db/schema/auth";
+import { member, site } from "@better-blog/db/schema/auth";
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { authMiddleware } from "@/middleware/auth";
@@ -17,6 +17,22 @@ export const getOrgSites = createServerFn({ method: "GET" })
   )
   .handler(async ({ context, data }) => {
     if (!context.session) {
+      return [];
+    }
+
+    // Verify user is a member of this organization
+    const membership = await db
+      .select()
+      .from(member)
+      .where(
+        and(
+          eq(member.userId, context.session.user.id),
+          eq(member.organizationId, data.organizationId)
+        )
+      )
+      .limit(1);
+
+    if (membership.length === 0) {
       return [];
     }
 

@@ -14,9 +14,8 @@ import {
   Tag,
   Users,
 } from "@phosphor-icons/react";
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useRouter } from "@tanstack/react-router";
 import * as React from "react";
-
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,6 +43,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { getOrgSites } from "@/functions/get-org-sites";
 
 interface Organization {
   id: string;
@@ -76,6 +76,9 @@ interface NavSection {
   label: string;
   items: NavItem[];
 }
+
+const STORAGE_KEY_ORG = "crowggr-active-org";
+const STORAGE_KEY_SITE = "crowggr-active-site";
 
 const homeItem: NavItem = { title: "Home", url: "/", icon: House };
 
@@ -120,9 +123,59 @@ const navSections: NavSection[] = [
 ];
 
 export function AppSidebar({ orgs, sites, ...props }: AppSidebarProps) {
-  const [activeOrg, setActiveOrg] = React.useState(orgs[0]);
-  const [activeSite, setActiveSite] = React.useState(sites[0]);
+  const router = useRouter();
   const location = useLocation();
+
+  // Initialize from localStorage or fallback to first item
+  const [activeOrg, setActiveOrg] = React.useState<Organization | undefined>(
+    () => {
+      if (typeof window === "undefined") return orgs[0];
+      const savedId = localStorage.getItem(STORAGE_KEY_ORG);
+      return orgs.find((o) => o.id === savedId) ?? orgs[0];
+    }
+  );
+
+  const [currentSites, setCurrentSites] = React.useState<Site[]>(sites);
+  const [activeSite, setActiveSite] = React.useState<Site | undefined>(() => {
+    if (typeof window === "undefined") return sites[0];
+    const savedId = localStorage.getItem(STORAGE_KEY_SITE);
+    return sites.find((s) => s.id === savedId) ?? sites[0];
+  });
+
+  // Handle org change - fetch new sites
+  const handleOrgChange = React.useCallback(
+    async (org: Organization) => {
+      setActiveOrg(org);
+      localStorage.setItem(STORAGE_KEY_ORG, org.id);
+
+      // Fetch sites for the new org
+      const newSites = await getOrgSites({ data: { organizationId: org.id } });
+      setCurrentSites(newSites);
+
+      // Reset active site to first of new org's sites
+      const firstSite = newSites[0];
+      setActiveSite(firstSite);
+      if (firstSite) {
+        localStorage.setItem(STORAGE_KEY_SITE, firstSite.id);
+      } else {
+        localStorage.removeItem(STORAGE_KEY_SITE);
+      }
+
+      // Invalidate router to refresh data
+      router.invalidate();
+    },
+    [router]
+  );
+
+  // Handle site change
+  const handleSiteChange = React.useCallback(
+    (site: Site) => {
+      setActiveSite(site);
+      localStorage.setItem(STORAGE_KEY_SITE, site.id);
+      router.invalidate();
+    },
+    [router]
+  );
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -151,7 +204,7 @@ export function AppSidebar({ orgs, sites, ...props }: AppSidebarProps) {
                     {orgs.map((org) => (
                       <DropdownMenuItem
                         key={org.id}
-                        onClick={() => setActiveOrg(org)}
+                        onClick={() => handleOrgChange(org)}
                       >
                         {org.name}
                       </DropdownMenuItem>
@@ -241,7 +294,7 @@ export function AppSidebar({ orgs, sites, ...props }: AppSidebarProps) {
         <SidebarGroup className="mt-auto px-2 pb-2 group-data-[collapsible=icon]:hidden">
           <div className="relative overflow-hidden rounded-lg bg-background">
             <img
-              alt="Owl"
+              alt="Crow"
               className="h-24 w-full object-cover object-[center_30%] mix-blend-exclusion"
               src="/crow-image.png"
             />
@@ -285,11 +338,11 @@ export function AppSidebar({ orgs, sites, ...props }: AppSidebarProps) {
                 }
               />
               <DropdownMenuContent align="start" side="top">
-                {sites.length > 0 ? (
-                  sites.map((site) => (
+                {currentSites.length > 0 ? (
+                  currentSites.map((site) => (
                     <DropdownMenuItem
                       key={site.id}
-                      onClick={() => setActiveSite(site)}
+                      onClick={() => handleSiteChange(site)}
                     >
                       {site.name}
                     </DropdownMenuItem>
